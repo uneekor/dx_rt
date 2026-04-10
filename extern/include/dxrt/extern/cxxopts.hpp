@@ -30,6 +30,7 @@ THE SOFTWARE.
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <cstdint>
 #include <exception>
 #include <limits>
 #include <initializer_list>
