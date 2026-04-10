@@ -268,8 +268,15 @@ endif()
 
 # sub-directories
 add_subdirectory(lib)
-add_subdirectory(cli)
-add_subdirectory(examples)
+
+if(NOT SKIP_EXECUTABLES)
+    add_subdirectory(cli)
+endif()
+
+if(NOT SKIP_EXAMPLES)
+    add_subdirectory(examples)
+endif()
+
 if(EXISTS "${CMAKE_SOURCE_DIR}/test")
     add_subdirectory(test)
 endif()
