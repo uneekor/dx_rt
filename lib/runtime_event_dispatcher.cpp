@@ -42,7 +42,7 @@ namespace dxrt {
         }
     }
 
-    void RuntimeEventDispatcher::RegisterEventHandler(std::function<void(LEVEL, TYPE, CODE, const std::string&, const std::string&)> handler)
+    void RuntimeEventDispatcher::RegisterEventHandler(const std::function<void(LEVEL, TYPE, CODE, const std::string&, const std::string&)>& handler)
     {
         std::lock_guard<std::mutex> lock(_handlerMutex);
 
@@ -68,7 +68,7 @@ namespace dxrt {
         return false;
     }
 
-    void RuntimeEventDispatcher::handleEventLogging(LEVEL level, TYPE type, CODE code, const std::string& eventMessage, const std::string& timestamp)
+    void RuntimeEventDispatcher::handleEventLogging(LEVEL level, TYPE type, CODE code, const std::string& eventMessage, const std::string& timestamp) const
     {
         // Convert enum values to readable strings
         std::string levelStr;
@@ -103,13 +103,21 @@ namespace dxrt {
             default:                        codeStr = "UNKNOWN"; break;
         }
 
+        // Escape newlines in message for single-line logging
+        std::string escapedMessage = eventMessage;
+        size_t pos = 0;
+        while ((pos = escapedMessage.find('\n', pos)) != std::string::npos) {
+            escapedMessage.replace(pos, 1, "\\n");
+            pos += 2;  // Move past the inserted "\\n"
+        }
+
         static std::mutex logging_mutex;
         std::lock_guard<std::mutex> lock(logging_mutex);
 
         std::cout << "[RuntimeEventDispatcher] level=" << levelStr
                     << " type=" << typeStr
                     << " code=" << codeStr
-                    << " message=\"" << eventMessage << "\""
+                    << " message=\"" << escapedMessage << "\""
                     << " timestamp=\"" << timestamp << "\"" << std::endl;
     }
 
