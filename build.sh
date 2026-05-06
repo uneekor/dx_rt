@@ -421,12 +421,13 @@ install_python_package() {
             pushd ${SCRIPT_DIR}/python_package >/dev/null
             
             # Attempt to install the package using python_exec -m pip (more reliable than pip3)
+            # --no-cache-dir ensures the wheel is rebuilt fresh so that the compiled
+            # _pydxrt.so (placed by CMake) is always included in the installed package.
             if [ "$python_break_system_packages" = true ]; then
-                install_result=$(${python_exec} -m pip install --break-system-packages . 2>&1)
+                install_result=$(${python_exec} -m pip install --no-cache-dir --break-system-packages . 2>&1)
             else
-                install_result=$(${python_exec} -m pip install . 2>&1)
+                install_result=$(${python_exec} -m pip install --no-cache-dir . 2>&1)
             fi
-            install_result=$(${python_exec} -m pip install . 2>&1)
             local exit_code=$?
             
             # Check for PEP 668 specific error
@@ -568,18 +569,43 @@ manage_dxrt_service() {
 }
 
 uninstall_dxrt() {
-    if [ -d $build_dir ]; then
-        pushd $build_dir >/dev/null
-        sudo ninja uninstall && {
+    local INSTALL_PREFIX="${install:-/usr/local}"
+
+    if [ ! -d "$build_dir" ]; then
+        print_colored_v2 "INFO" "No build directory found, skipping uninstall."
+        return
+    fi
+
+    # Run ninja uninstall for native builds (cmake-tracked files)
+    if [ "$CROSS_COMPILE" == "native" ]; then
+        pushd "$build_dir" >/dev/null
+        if [ -f build.ninja ]; then
+            sudo ninja uninstall || {
+                local return_code=$?
+                print_colored_v2 "FAIL" "Failed to uninstall the ninja build files."
+                popd >/dev/null
+                exit $return_code
+            }
             print_colored_v2 "SUCCESS" "Uninstalled ninja build files"
-        } || {
-            return_code=$?
-            print_colored_v2 "FAIL" "Failed to uninstall the ninja build files."
-            exit $return_code
-        }
+
+            # remove /usr/local/include/dxrt 
+            if [ -d "${INSTALL_PREFIX}/include/dxrt" ]; then
+                sudo rm -rf "${INSTALL_PREFIX}/include/dxrt"
+                print_colored_v2 "SUCCESS" "[Removed ${INSTALL_PREFIX}/include/dxrt]"
+            fi
+
+            # remove /usr/local/bin/examples (if exist and empty)
+            if [ -d "${INSTALL_PREFIX}/bin/examples" ] && [ -z "$(ls -A ${INSTALL_PREFIX}/bin/examples 2>/dev/null)" ]; then
+                sudo rmdir "${INSTALL_PREFIX}/bin/examples"
+                print_colored_v2 "SUCCESS" "[Removed ${INSTALL_PREFIX}/bin/examples]"
+            elif [ -d "${INSTALL_PREFIX}/bin/examples" ]; then
+                print_colored_v2 "INFO" "[Directory ${INSTALL_PREFIX}/bin/examples is not empty, keeping it]"
+            fi
+
+        else
+            print_colored_v2 "WARNING" "[build.ninja not found in $build_dir, skipping ninja uninstall]"
+        fi
         popd >/dev/null
-    else
-        print_colored_v2 "INFO" "No build directory found, skip to uninstall ninja build files."
     fi
 }
 

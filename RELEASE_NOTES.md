@@ -1,5 +1,18 @@
 # RELEASE_NOTES
 
+## v3.3.1 / 2026-04-21
+
+### 1. Changed
+- Change the version of pre-built onnxruntime(1.23.2 -> 1.22.0) and openvino(25.4 -> 25.1)
+- Enhance uninstall script to remove debian packages, legacy binaries, and test files from previous versions
+
+### 2. Fixed
+- Fix typos in the document
+- Fix error in uninstall logic
+
+### 3. Added
+- Add libdxrt 3.3.1 debian package with updated build and install pipeline
+
 ## v3.3.0 / 2026-04-07
 
 ### 1. Changed
