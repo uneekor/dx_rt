@@ -420,12 +420,10 @@ namespace {
 void parseDataSection(const Value& dataObj, deepx_binaryinfo::BinaryInfoDatabase& param, const char* buffer, int offset)
 {
     // [Field] - cpu models
-#ifdef USE_ORT
     if (dataObj.HasMember("cpu_models") && dataObj["cpu_models"].IsObject()) 
     {
         parseCpuModels(dataObj["cpu_models"], param);
     }
-#endif
 
     // [Field] - compile config
     if (dataObj.HasMember("compile_config") && dataObj["compile_config"].IsObject()) 
