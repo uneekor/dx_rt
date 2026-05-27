@@ -120,7 +120,6 @@ macro(add_target target)
     add_executable(${target} ${ARG_SRC_LIST})
     add_dxrt_static(${target})
     install(TARGETS ${target} DESTINATION bin)
-    install(TARGETS ${target} DESTINATION ${CMAKE_SOURCE_DIR}/bin)
 endmacro(add_target)
 
 macro(add_clangtidy)
