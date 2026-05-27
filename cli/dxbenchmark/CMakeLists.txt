@@ -19,5 +19,4 @@ else()
 endif()
   
 install( TARGETS ${target} DESTINATION bin )
-install( TARGETS ${target} DESTINATION ${CMAKE_SOURCE_DIR}/bin )
 
