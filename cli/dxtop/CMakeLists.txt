@@ -7,12 +7,8 @@ add_executable(${target} ${srcs})
 if (MSVC)
    set(CURSES_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/extern/windows_pdcurses)
  # Find ncurses package
-elseif (NOT CROSS_COMPILE)
-  find_package(Curses REQUIRED)
 else()
-  # only available host arch compile
-  set(CURSES_LIBRARIES ${CMAKE_SOURCE_DIR}/extern/ncurses/lib_aarch64/libncursesw.a)
-  set(CURSES_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/extern/ncurses/include)
+  find_package(Curses REQUIRED)
 endif()
 
 target_include_directories(${target} PUBLIC
