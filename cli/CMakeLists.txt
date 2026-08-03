@@ -7,7 +7,6 @@ foreach(source_file ${SRC_FILES})
         add_executable(${filename} ${source_file})
         add_dxrt(${filename})
         install(TARGETS ${filename} DESTINATION bin)
-        install(TARGETS ${filename} DESTINATION ${CMAKE_SOURCE_DIR}/bin)
     else()
         # Other CLI tools need C++ internals — link against static library.
         add_target(${filename} SRC_LIST ${source_file})
